@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f0f0f">
+<title>Shift</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #2e2e2e;
+    --text: #f0ede8;
+    --muted: #666;
+    --muted2: #444;
+    --accent: #e8c547;
+    --accent2: #c4a832;
+    --clinic: #e87c47;
+    --clinic2: #c45f2a;
+    --saturday: #47b8e8;
+    --saturday2: #2a8fb8;
+    --half: #9b59b6;
+    --half2: #7d3f9e;
+    --special: #2ecc71;
+    --special2: #27ae60;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRAIN OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 0 120px;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    padding: 48px 20px 0;
+    position: relative;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4.5rem;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    line-height: 0.9;
+  }
+
+  header h1 span {
+    color: var(--accent);
+  }
+
+  .header-week {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  .header-line {
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    margin: 16px 0 0;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    padding: 16px 20px 0;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab {
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+  }
+
+  .tab.active { color: var(--accent); }
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  /* SECTIONS */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* WEEK VIEW */
+  .week-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 20px 12px;
+  }
+
+  .week-nav-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .week-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .week-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* WEEK HOURS SUMMARY */
+  .week-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 0 20px 16px;
+  }
+
+  .summary-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    animation: fadeIn 0.3s ease both;
+  }
+
+  .summary-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+
+  .summary-val.accent { color: var(--accent); }
+  .summary-val.clinic { color: var(--clinic); }
+  .summary-val.total { color: var(--text); }
+
+  .summary-lbl {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* DAY CARDS */
+  .day-card {
+    margin: 0 20px 8px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    animation: slideIn 0.3s ease both;
+    transition: border-color 0.2s;
+  }
+
+  .day-card:hover { border-color: var(--muted2); }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .day-card:nth-child(1) { animation-delay: 0.03s; }
+  .day-card:nth-child(2) { animation-delay: 0.06s; }
+  .day-card:nth-child(3) { animation-delay: 0.09s; }
+  .day-card:nth-child(4) { animation-delay: 0.12s; }
+  .day-card:nth-child(5) { animation-delay: 0.15s; }
+  .day-card:nth-child(6) { animation-delay: 0.18s; }
+  .day-card:nth-child(7) { animation-delay: 0.21s; }
+
+  .day-card.today { border-color: var(--accent); }
+
+  .day-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .day-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.06em;
+    width: 42px;
+    flex-shrink: 0;
+  }
+
+  .day-date {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+  }
+
+  .day-date.today-date { color: var(--accent); }
+
+  .day-shifts {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    min-width: 0;
+  }
+
+  .shift-pill {
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .shift-pill.regular { background: rgba(232,197,71,0.15); color: var(--accent); border: 1px solid rgba(232,197,71,0.3); }
+  .shift-pill.clinic { background: rgba(232,124,71,0.15); color: var(--clinic); border: 1px solid rgba(232,124,71,0.3); }
+  .shift-pill.saturday { background: rgba(71,184,232,0.15); color: var(--saturday); border: 1px solid rgba(71,184,232,0.3); }
+  .shift-pill.half { background: rgba(155,89,182,0.15); color: var(--half); border: 1px solid rgba(155,89,182,0.3); }
+  .shift-pill.special { background: rgba(46,204,113,0.15); color: var(--special); border: 1px solid rgba(46,204,113,0.3); }
+
+  .day-add {
+    background: none;
+    border: none;
+    color: var(--muted2);
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 4px;
+    transition: color 0.2s;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .day-add:hover { color: var(--accent); }
+
+  .day-off-label {
+    font-size: 0.65rem;
+    color: var(--muted2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* SHIFT DETAIL */
+  .shift-detail {
+    border-top: 1px solid var(--border);
+    padding: 12px 14px;
+    display: none;
+  }
+
+  .shift-detail.open { display: block; }
+
+  .shift-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .shift-item:last-child { border-bottom: none; }
+
+  .shift-type-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .shift-type-dot.regular { background: var(--accent); }
+  .shift-type-dot.clinic { background: var(--clinic); }
+  .shift-type-dot.saturday { background: var(--saturday); }
+  .shift-type-dot.half { background: var(--half); }
+  .shift-type-dot.special { background: var(--special); }
+
+  .shift-info { flex: 1; }
+  .shift-time { font-size: 0.8rem; color: var(--text); letter-spacing: 0.04em; }
+  .shift-note { font-size: 0.68rem; color: var(--muted); margin-top: 2px; font-style: italic; }
+
+  .shift-hours-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .shift-delete {
+    background: none;
+    border: none;
+    color: var(--muted2);
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 2px 4px;
+    transition: color 0.2s;
+  }
+
+  .shift-delete:hover { color: #e74c3c; }
+
+  /* ADD SHIFT MODAL */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 100;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-backdrop.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px 40px;
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .modal-handle {
+    width: 36px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.06em;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .modal-title span { color: var(--accent); }
+
+  /* SHIFT TYPE SELECTOR */
+  .type-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .type-btn {
+    padding: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+
+  .type-btn .type-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 2px;
+    transition: color 0.2s;
+  }
+
+  .type-btn .type-desc {
+    font-size: 0.65rem;
+    color: var(--muted2);
+    font-style: italic;
+  }
+
+  .type-btn.selected-regular { border-color: var(--accent); background: rgba(232,197,71,0.08); }
+  .type-btn.selected-regular .type-name { color: var(--accent); }
+  .type-btn.selected-clinic { border-color: var(--clinic); background: rgba(232,124,71,0.08); }
+  .type-btn.selected-clinic .type-name { color: var(--clinic); }
+  .type-btn.selected-saturday { border-color: var(--saturday); background: rgba(71,184,232,0.08); }
+  .type-btn.selected-saturday .type-name { color: var(--saturday); }
+  .type-btn.selected-half { border-color: var(--half); background: rgba(155,89,182,0.08); }
+  .type-btn.selected-half .type-name { color: var(--half); }
+  .type-btn.selected-special { border-color: var(--special); background: rgba(46,204,113,0.08); }
+  .type-btn.selected-special .type-name { color: var(--special); }
+
+  /* FORM */
+  .form-row { margin-bottom: 14px; }
+
+  .form-label {
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .time-row { display: flex; gap: 10px; }
+  .time-row .form-input { flex: 1; }
+
+  .form-input {
+    width: 100%;
+    padding: 11px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+    color-scheme: dark;
+  }
+
+  .form-input:focus { border-color: var(--accent); }
+
+  .form-textarea {
+    width: 100%;
+    padding: 11px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text);
+    outline: none;
+    resize: none;
+    height: 64px;
+    transition: border-color 0.2s;
+    color-scheme: dark;
+  }
+
+  .form-textarea:focus { border-color: var(--accent); }
+
+  /* QUICK TIME PRESETS */
+  .presets {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .preset-btn {
+    padding: 5px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+
+  .preset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-save {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+
+  .btn-save:hover { background: var(--accent2); transform: translateY(-1px); }
+
+  .btn-cancel {
+    width: 100%;
+    padding: 12px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.2s;
+  }
+
+  .btn-cancel:hover { border-color: var(--muted); color: var(--text); }
+
+  /* MONTH VIEW */
+  .month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 20px 16px;
+  }
+
+  .month-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.08em;
+    color: var(--text);
+  }
+
+  .month-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    padding: 0 20px;
+  }
+
+  .month-day-label {
+    text-align: center;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 8px;
+  }
+
+  .month-day {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    background: transparent;
+    color: var(--text);
+    border: none;
+    font-family: 'DM Mono', monospace;
+    gap: 2px;
+  }
+
+  .month-day:hover:not(.empty) { background: var(--surface2); }
+  .month-day.other-month { color: var(--muted2); }
+  .month-day.today-m { background: var(--surface2); color: var(--accent); font-weight: 500; }
+  .month-day.has-shift { background: var(--surface); }
+
+  .month-dots {
+    display: flex;
+    gap: 2px;
+    justify-content: center;
+  }
+
+  .month-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+  }
+
+  .month-dot.regular { background: var(--accent); }
+  .month-dot.clinic { background: var(--clinic); }
+  .month-dot.saturday { background: var(--saturday); }
+  .month-dot.half { background: var(--half); }
+  .month-dot.special { background: var(--special); }
+
+  /* HOURS TAB */
+  .hours-period-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 20px 16px;
+  }
+
+  .period-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.08em;
+    color: var(--text);
+  }
+
+  .hours-big {
+    margin: 0 20px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .hours-block { }
+  .hours-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8rem;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .hours-val.accent { color: var(--accent); }
+  .hours-val.clinic-c { color: var(--clinic); }
+
+  .hours-lbl {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .hours-breakdown {
+    margin: 0 20px;
+  }
+
+  .hours-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    animation: fadeIn 0.3s ease both;
+  }
+
+  .hours-row:last-child { border-bottom: none; }
+
+  .hours-row-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hours-row-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .hours-row-date {
+    font-size: 0.75rem;
+    color: var(--text);
+    letter-spacing: 0.04em;
+  }
+
+  .hours-row-type {
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .hours-row-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  /* SETTINGS */
+  .settings-section {
+    margin: 0 20px 20px;
+  }
+
+  .settings-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: block;
+  }
+
+  .settings-label:first-child { border-top: none; padding-top: 20px; }
+
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .setting-name { font-size: 0.8rem; color: var(--text); }
+  .setting-val { font-size: 0.75rem; color: var(--accent); font-family: 'DM Mono'; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--accent);
+    color: var(--bg);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: all 0.25s;
+    z-index: 200;
+    pointer-events: none;
+    white-space: nowrap;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 20px 0;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+  }
+
+  .empty-hours {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="header-top">
+      <h1>SHI<span>FT</span></h1>
+      <div class="header-week" id="header-week-info"></div>
+    </div>
+    <div class="header-line"></div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('week', this)">Week</button>
+    <button class="tab" onclick="switchTab('month', this)">Month</button>
+    <button class="tab" onclick="switchTab('hours', this)">Hours</button>
+  </div>
+
+  <!-- WEEK TAB -->
+  <div id="tab-week" class="section active">
+    <div class="week-nav">
+      <button class="week-nav-btn" onclick="changeWeek(-1)">‹</button>
+      <div class="week-label" id="week-range-label"></div>
+      <button class="week-nav-btn" onclick="changeWeek(1)">›</button>
+    </div>
+
+    <div class="week-summary" id="week-summary"></div>
+
+    <div id="week-days"></div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Regular</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--clinic)"></div>After-hours</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--saturday)"></div>Saturday clinic</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--half)"></div>Half day</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--special)"></div>Special closure</div>
+    </div>
+  </div>
+
+  <!-- MONTH TAB -->
+  <div id="tab-month" class="section">
+    <div class="month-nav">
+      <button class="week-nav-btn" onclick="changeMonth(-1)">‹</button>
+      <div class="month-title" id="month-label"></div>
+      <button class="week-nav-btn" onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="month-grid" id="month-grid"></div>
+  </div>
+
+  <!-- HOURS TAB -->
+  <div id="tab-hours" class="section">
+    <div class="hours-period-nav">
+      <button class="week-nav-btn" onclick="changeHoursPeriod(-1)">‹</button>
+      <div class="period-label" id="hours-period-label"></div>
+      <button class="week-nav-btn" onclick="changeHoursPeriod(1)">›</button>
+    </div>
+    <div class="hours-big" id="hours-big"></div>
+    <div class="hours-breakdown" id="hours-breakdown"></div>
+  </div>
+</div>
+
+<!-- ADD SHIFT MODAL -->
+<div class="modal-backdrop" id="modal" onclick="closeModalOnBackdrop(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Shift — <span id="modal-date-label"></span></div>
+
+    <div class="type-grid">
+      <button class="type-btn" data-type="regular" onclick="selectType(this)">
+        <span class="type-name">Regular</span>
+        <span class="type-desc">Standard work day</span>
+      </button>
+      <button class="type-btn" data-type="clinic" onclick="selectType(this)">
+        <span class="type-name">After-hours</span>
+        <span class="type-desc">Evening clinic</span>
+      </button>
+      <button class="type-btn" data-type="saturday" onclick="selectType(this)">
+        <span class="type-name">Saturday</span>
+        <span class="type-desc">Sat morning clinic</span>
+      </button>
+      <button class="type-btn" data-type="half" onclick="selectType(this)">
+        <span class="type-name">Half day</span>
+        <span class="type-desc">Early finish</span>
+      </button>
+      <button class="type-btn" data-type="special" onclick="selectType(this)" style="grid-column:span 2">
+        <span class="type-name">Special closure</span>
+        <span class="type-desc">Office closed / appreciation day</span>
+      </button>
+    </div>
+
+    <div class="form-row">
+      <div class="form-label">Quick presets</div>
+      <div class="presets" id="preset-row"></div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-label">Time</div>
+      <div class="time-row">
+        <input type="time" class="form-input" id="modal-start" placeholder="Start">
+        <input type="time" class="form-input" id="modal-end" placeholder="End">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-label">Note (optional)</div>
+      <textarea class="form-textarea" id="modal-note" placeholder="e.g. covering for Sarah, flu clinic…"></textarea>
+    </div>
+
+    <button class="btn-save" onclick="saveShift()">Save Shift</button>
+    <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let shifts = JSON.parse(localStorage.getItem('shift-data') || '{}');
+let weekOffset = 0;
+let monthOffset = 0;
+let hoursPeriodOffset = 0;
+let modalDate = null;
+let selectedType = null;
+
+const PRESETS = {
+  regular: [
+    { label: '8–4', start: '08:00', end: '16:00' },
+    { label: '8:30–4:30', start: '08:30', end: '16:30' },
+    { label: '9–5', start: '09:00', end: '17:00' },
+  ],
+  clinic: [
+    { label: '4:30–6:30', start: '16:30', end: '18:30' },
+    { label: '4:30–7:30', start: '16:30', end: '19:30' },
+    { label: '4:30–8:30', start: '16:30', end: '20:30' },
+  ],
+  saturday: [
+    { label: '8:30–12', start: '08:30', end: '12:00' },
+    { label: '8:30–3', start: '08:30', end: '15:00' },
+  ],
+  half: [
+    { label: '8–12', start: '08:00', end: '12:00' },
+    { label: '8:30–12:30', start: '08:30', end: '12:30' },
+  ],
+  special: [
+    { label: 'All day off', start: '00:00', end: '00:00' },
+  ]
+};
+
+const TYPE_COLORS = {
+  regular: 'var(--accent)',
+  clinic: 'var(--clinic)',
+  saturday: 'var(--saturday)',
+  half: 'var(--half)',
+  special: 'var(--special)'
+};
+
+const TYPE_LABELS = {
+  regular: 'Regular',
+  clinic: 'After-hours',
+  saturday: 'Saturday',
+  half: 'Half day',
+  special: 'Special'
+};
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function saveData() { localStorage.setItem('shift-data', JSON.stringify(shifts)); }
+
+function getWeekStart(offset) {
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  const day = d.getDay(); // 0=sun
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - (day === 0 ? 6 : day - 1) + offset * 7);
+  return monday;
+}
+
+function dateKey(d) { return d.toISOString().slice(0,10); }
+
+function formatTime(t) {
+  if (!t || t === '00:00') return '';
+  const [h, m] = t.split(':').map(Number);
+  const ampm = h >= 12 ? 'pm' : 'am';
+  const h12 = h % 12 || 12;
+  return m === 0 ? `${h12}${ampm}` : `${h12}:${String(m).padStart(2,'0')}${ampm}`;
+}
+
+function calcHours(start, end) {
+  if (!start || !end || start === '00:00' || end === '00:00') return 0;
+  const [sh, sm] = start.split(':').map(Number);
+  const [eh, em] = end.split(':').map(Number);
+  return Math.max(0, (eh * 60 + em - sh * 60 - sm) / 60);
+}
+
+function formatHours(h) {
+  if (h === 0) return '0h';
+  const whole = Math.floor(h);
+  const mins = Math.round((h - whole) * 60);
+  return mins > 0 ? `${whole}h ${mins}m` : `${whole}h`;
+}
+
+function getShiftsForDay(key) { return shifts[key] || []; }
+
+function isToday(d) {
+  const t = new Date(); t.setHours(0,0,0,0);
+  return d.getTime() === t.getTime();
+}
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DAYS_SHORT = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(tab, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'week') renderWeek();
+  if (tab === 'month') renderMonth();
+  if (tab === 'hours') renderHours();
+}
+
+// ─── WEEK VIEW ────────────────────────────────────────────────────────────────
+function changeWeek(dir) { weekOffset += dir; renderWeek(); }
+
+function renderWeek() {
+  const monday = getWeekStart(weekOffset);
+  const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+
+  // Header
+  const fmt = d => `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
+  document.getElementById('week-range-label').textContent = `${fmt(monday)} – ${fmt(sunday)}`;
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const isThisWeek = weekOffset === 0;
+  document.getElementById('header-week-info').innerHTML =
+    isThisWeek ? `This week<br>${MONTHS[today.getMonth()]} ${today.getFullYear()}` :
+    `${MONTHS[monday.getMonth()]} ${monday.getFullYear()}`;
+
+  // Summary
+  let regHours = 0, clinicHours = 0;
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday); d.setDate(monday.getDate() + i);
+    const key = dateKey(d);
+    const dayShifts = getShiftsForDay(key);
+    dayShifts.forEach(s => {
+      const h = calcHours(s.start, s.end);
+      if (s.type === 'clinic' || s.type === 'saturday') clinicHours += h;
+      else regHours += h;
+    });
+    days.push({ d, key, dayShifts });
+  }
+
+  document.getElementById('week-summary').innerHTML = `
+    <div class="summary-block">
+      <div class="summary-val accent">${formatHours(regHours)}</div>
+      <div class="summary-lbl">Regular</div>
+    </div>
+    <div class="summary-block">
+      <div class="summary-val clinic">${formatHours(clinicHours)}</div>
+      <div class="summary-lbl">Clinic</div>
+    </div>
+    <div class="summary-block">
+      <div class="summary-val total">${formatHours(regHours + clinicHours)}</div>
+      <div class="summary-lbl">Total</div>
+    </div>
+  `;
+
+  // Days
+  const container = document.getElementById('week-days');
+  container.innerHTML = '';
+
+  days.forEach(({ d, key, dayShifts }, i) => {
+    const card = document.createElement('div');
+    card.className = 'day-card' + (isToday(d) ? ' today' : '');
+    card.dataset.key = key;
+
+    const pillsHTML = dayShifts.map(s =>
+      `<span class="shift-pill ${s.type}">${TYPE_LABELS[s.type]}${s.start && s.start !== '00:00' ? ' ' + formatTime(s.start) : ''}</span>`
+    ).join('');
+
+    const detailHTML = dayShifts.map((s, si) => {
+      const h = calcHours(s.start, s.end);
+      const timeStr = s.start && s.start !== '00:00' ? `${formatTime(s.start)} – ${formatTime(s.end)}` : 'All day';
+      return `
+        <div class="shift-item">
+          <div class="shift-type-dot ${s.type}"></div>
+          <div class="shift-info">
+            <div class="shift-time">${TYPE_LABELS[s.type]} · ${timeStr}</div>
+            ${s.note ? `<div class="shift-note">${s.note}</div>` : ''}
+          </div>
+          ${h > 0 ? `<div class="shift-hours-badge">${formatHours(h)}</div>` : ''}
+          <button class="shift-delete" onclick="deleteShift('${key}', ${si})" title="Remove">✕</button>
+        </div>
+      `;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="day-header" onclick="toggleDay(this)">
+        <div class="day-name">${DAYS[i]}</div>
+        <div class="day-date ${isToday(d) ? 'today-date' : ''}">${d.getDate()}/${d.getMonth()+1}</div>
+        <div class="day-shifts">${pillsHTML || '<span class="day-off-label">Off</span>'}</div>
+        <button class="day-add" onclick="openModal('${key}', event)">+</button>
+      </div>
+      ${dayShifts.length ? `<div class="shift-detail" id="detail-${key}">${detailHTML}</div>` : ''}
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function toggleDay(header) {
+  const detail = header.nextElementSibling;
+  if (detail && detail.classList.contains('shift-detail')) {
+    detail.classList.toggle('open');
+  }
+}
+
+function deleteShift(key, index) {
+  shifts[key].splice(index, 1);
+  if (!shifts[key].length) delete shifts[key];
+  saveData();
+  renderWeek();
+  showToast('Removed');
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+function openModal(dateKeyStr, e) {
+  if (e) e.stopPropagation();
+  modalDate = dateKeyStr;
+  selectedType = null;
+
+  const d = new Date(dateKeyStr + 'T00:00:00');
+  document.getElementById('modal-date-label').textContent =
+    `${DAYS[(d.getDay() + 6) % 7]} ${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
+
+  document.querySelectorAll('.type-btn').forEach(b => b.className = 'type-btn');
+  document.getElementById('modal-start').value = '';
+  document.getElementById('modal-end').value = '';
+  document.getElementById('modal-note').value = '';
+  document.getElementById('preset-row').innerHTML = '';
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function closeModalOnBackdrop(e) { if (e.target === document.getElementById('modal')) closeModal(); }
+
+function selectType(btn) {
+  const type = btn.dataset.type;
+  selectedType = type;
+  document.querySelectorAll('.type-btn').forEach(b => b.className = 'type-btn');
+  btn.className = `type-btn selected-${type}`;
+
+  // Set default times
+  const defaults = { regular: ['08:00','16:00'], clinic: ['16:30','19:30'], saturday: ['08:30','15:00'], half: ['08:00','12:00'], special: ['00:00','00:00'] };
+  document.getElementById('modal-start').value = defaults[type][0];
+  document.getElementById('modal-end').value = defaults[type][1];
+
+  // Presets
+  const presets = PRESETS[type] || [];
+  document.getElementById('preset-row').innerHTML = presets.map(p =>
+    `<button class="preset-btn" onclick="applyPreset('${p.start}','${p.end}')">${p.label}</button>`
+  ).join('');
+}
+
+function applyPreset(start, end) {
+  document.getElementById('modal-start').value = start;
+  document.getElementById('modal-end').value = end;
+}
+
+function saveShift() {
+  if (!selectedType) { showToast('Pick a shift type'); return; }
+  const start = document.getElementById('modal-start').value;
+  const end = document.getElementById('modal-end').value;
+  const note = document.getElementById('modal-note').value.trim();
+
+  if (!shifts[modalDate]) shifts[modalDate] = [];
+  shifts[modalDate].push({ type: selectedType, start, end, note });
+  saveData();
+  closeModal();
+  showToast('Saved');
+  renderWeek();
+}
+
+// ─── MONTH VIEW ───────────────────────────────────────────────────────────────
+function changeMonth(dir) { monthOffset += dir; renderMonth(); }
+
+function renderMonth() {
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+  document.getElementById('month-label').textContent = `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+
+  const grid = document.getElementById('month-grid');
+  grid.innerHTML = '';
+
+  DAYS_SHORT.forEach(l => {
+    const el = document.createElement('div');
+    el.className = 'month-day-label';
+    el.textContent = l;
+    grid.appendChild(el);
+  });
+
+  const firstDay = d.getDay();
+  const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  for (let i = 0; i < firstDay; i++) {
+    const el = document.createElement('div');
+    el.className = 'month-day empty';
+    grid.appendChild(el);
+  }
+
+  for (let n = 1; n <= daysInMonth; n++) {
+    const thisDate = new Date(d.getFullYear(), d.getMonth(), n);
+    const key = dateKey(thisDate);
+    const dayShifts = getShiftsForDay(key);
+
+    const el = document.createElement('button');
+    el.className = 'month-day' + (isToday(thisDate) ? ' today-m' : '') + (dayShifts.length ? ' has-shift' : '');
+    el.innerHTML = `${n}${dayShifts.length ? `<div class="month-dots">${dayShifts.map(s => `<div class="month-dot ${s.type}"></div>`).join('')}</div>` : ''}`;
+    el.addEventListener('click', () => openModal(key, null));
+    grid.appendChild(el);
+  }
+}
+
+// ─── HOURS TAB ────────────────────────────────────────────────────────────────
+function changeHoursPeriod(dir) { hoursPeriodOffset += dir; renderHours(); }
+
+function renderHours() {
+  const now = new Date();
+  // Bi-weekly periods starting from a Monday
+  const currentMonday = getWeekStart(0);
+  const periodStart = new Date(currentMonday);
+  periodStart.setDate(periodStart.getDate() + hoursPeriodOffset * 14);
+  const periodEnd = new Date(periodStart);
+  periodEnd.setDate(periodStart.getDate() + 13);
+
+  const fmt = d => `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
+  document.getElementById('hours-period-label').textContent = `${fmt(periodStart)} – ${fmt(periodEnd)}`;
+
+  let regHours = 0, clinicHours = 0;
+  const rows = [];
+
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(periodStart);
+    d.setDate(periodStart.getDate() + i);
+    const key = dateKey(d);
+    const dayShifts = getShiftsForDay(key);
+    dayShifts.forEach(s => {
+      const h = calcHours(s.start, s.end);
+      if (s.type === 'clinic' || s.type === 'saturday') clinicHours += h;
+      else regHours += h;
+      if (h > 0) rows.push({ d, s, h });
+    });
+  }
+
+  document.getElementById('hours-big').innerHTML = `
+    <div class="hours-block">
+      <div class="hours-val accent">${formatHours(regHours)}</div>
+      <div class="hours-lbl">Regular hrs</div>
+    </div>
+    <div class="hours-block">
+      <div class="hours-val clinic-c">${formatHours(clinicHours)}</div>
+      <div class="hours-lbl">Clinic hrs</div>
+    </div>
+    <div class="hours-block">
+      <div class="hours-val" style="color:var(--text)">${formatHours(regHours + clinicHours)}</div>
+      <div class="hours-lbl">Total hrs</div>
+    </div>
+    <div class="hours-block">
+      <div class="hours-val" style="color:var(--muted);font-size:1.8rem">${rows.length}</div>
+      <div class="hours-lbl">Shifts logged</div>
+    </div>
+  `;
+
+  if (!rows.length) {
+    document.getElementById('hours-breakdown').innerHTML = `<div class="empty-hours">No shifts logged for this period.</div>`;
+    return;
+  }
+
+  document.getElementById('hours-breakdown').innerHTML = rows.map(({ d, s, h }) => `
+    <div class="hours-row">
+      <div class="hours-row-left">
+        <div class="hours-row-dot" style="background:${TYPE_COLORS[s.type]}"></div>
+        <div>
+          <div class="hours-row-date">${DAYS[(d.getDay() + 6) % 7]} ${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}</div>
+          <div class="hours-row-type">${TYPE_LABELS[s.type]}${s.start && s.start !== '00:00' ? ' · ' + formatTime(s.start) + '–' + formatTime(s.end) : ''}</div>
+        </div>
+      </div>
+      <div class="hours-row-val">${formatHours(h)}</div>
+    </div>
+  `).join('');
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ─── SERVICE WORKER ───────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw-shift.js').catch(() => {});
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderWeek();
+</script>
+</body>
+</html>
