@@ -6,8 +6,6 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0f0f0f">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Shift">
 <link rel="manifest" href="manifest.json">
 <title>Shift</title>
@@ -43,7 +41,6 @@
     overflow-x: hidden;
   }
 
-  /* GRAIN OVERLAY */
   body::before {
     content: '';
     position: fixed;
@@ -82,9 +79,7 @@
     line-height: 0.9;
   }
 
-  header h1 span {
-    color: var(--accent);
-  }
+  header h1 span { color: var(--accent); }
 
   .header-week {
     font-size: 0.65rem;
@@ -107,10 +102,13 @@
     padding: 16px 20px 0;
     gap: 0;
     border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
   }
+  .tabs::-webkit-scrollbar { display: none; }
 
   .tab {
-    padding: 10px 16px;
+    padding: 10px 14px;
     background: none;
     border: none;
     font-family: 'DM Mono', monospace;
@@ -121,6 +119,8 @@
     cursor: pointer;
     position: relative;
     transition: color 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .tab.active { color: var(--accent); }
@@ -167,7 +167,6 @@
     text-transform: uppercase;
   }
 
-  /* WEEK HOURS SUMMARY */
   .week-summary {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -305,7 +304,6 @@
     text-transform: uppercase;
   }
 
-  /* SHIFT DETAIL */
   .shift-detail {
     border-top: 1px solid var(--border);
     padding: 12px 14px;
@@ -359,7 +357,7 @@
 
   .shift-delete:hover { color: #e74c3c; }
 
-  /* ADD SHIFT MODAL */
+  /* MODAL */
   .modal-backdrop {
     position: fixed;
     inset: 0;
@@ -381,6 +379,8 @@
     width: 100%;
     max-width: 480px;
     animation: slideUp 0.3s ease;
+    max-height: 92vh;
+    overflow-y: auto;
   }
 
   @keyframes slideUp {
@@ -405,7 +405,6 @@
 
   .modal-title span { color: var(--accent); }
 
-  /* SHIFT TYPE SELECTOR */
   .type-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -451,7 +450,6 @@
   .type-btn.selected-special { border-color: var(--special); background: rgba(46,204,113,0.08); }
   .type-btn.selected-special .type-name { color: var(--special); }
 
-  /* FORM */
   .form-row { margin-bottom: 14px; }
 
   .form-label {
@@ -502,7 +500,6 @@
 
   .form-textarea:focus { border-color: var(--accent); }
 
-  /* QUICK TIME PRESETS */
   .presets {
     display: flex;
     gap: 6px;
@@ -631,7 +628,7 @@
   .month-dot.half { background: var(--half); }
   .month-dot.special { background: var(--special); }
 
-  /* HOURS TAB */
+  /* HOURS TAB (existing bi-weekly view) */
   .hours-period-nav {
     display: flex;
     align-items: center;
@@ -657,7 +654,6 @@
     gap: 16px;
   }
 
-  .hours-block { }
   .hours-val {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 2.8rem;
@@ -675,9 +671,7 @@
     color: var(--muted);
   }
 
-  .hours-breakdown {
-    margin: 0 20px;
-  }
+  .hours-breakdown { margin: 0 20px; }
 
   .hours-row {
     display: flex;
@@ -721,34 +715,352 @@
     color: var(--muted);
   }
 
-  /* SETTINGS */
-  .settings-section {
-    margin: 0 20px 20px;
-  }
-
-  .settings-label {
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 10px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-    display: block;
-  }
-
-  .settings-label:first-child { border-top: none; padding-top: 20px; }
-
-  .setting-row {
+  /* ── TIMESHEET TAB ─────────────────────────────────────────────────────────── */
+  .ts-nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border);
+    padding: 20px 20px 8px;
   }
 
-  .setting-name { font-size: 0.8rem; color: var(--text); }
-  .setting-val { font-size: 0.75rem; color: var(--accent); font-family: 'DM Mono'; }
+  .ts-nav-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .ts-nav-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+  }
+
+  /* Period toggle pills */
+  .ts-period-toggle {
+    display: flex;
+    margin: 0 20px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .ts-toggle-btn {
+    flex: 1;
+    padding: 8px;
+    background: none;
+    border: none;
+    border-radius: 7px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .ts-toggle-btn.active {
+    background: var(--surface2);
+    color: var(--accent);
+  }
+
+  /* Stats strip */
+  .ts-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 0 20px 16px;
+  }
+
+  .ts-stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 10px;
+  }
+
+  .ts-stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.7rem;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+
+  .ts-stat-lbl {
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Pay period totals banner */
+  .ts-pay-banner {
+    margin: 0 20px 16px;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ts-pay-banner-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+
+  .ts-pay-banner-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
+
+  .ts-pay-banner-right {
+    text-align: right;
+  }
+
+  /* Section header */
+  .ts-section-hdr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px 8px;
+  }
+
+  .ts-section-title {
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .ts-add-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .ts-add-btn:hover { border-color: var(--accent); background: rgba(232,197,71,0.06); }
+
+  /* Entry cards */
+  .ts-entry {
+    margin: 0 20px 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: fadeIn 0.25s ease both;
+    transition: border-color 0.2s;
+  }
+
+  .ts-entry:hover { border-color: var(--muted2); }
+
+  .ts-entry-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .ts-entry-main { flex: 1; min-width: 0; }
+
+  .ts-entry-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 3px;
+  }
+
+  .ts-entry-date {
+    font-size: 0.78rem;
+    color: var(--text);
+    letter-spacing: 0.04em;
+  }
+
+  .ts-entry-badge {
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .ts-entry-badge.regular { background: rgba(232,197,71,0.12); color: var(--accent); }
+  .ts-entry-badge.clinic { background: rgba(232,124,71,0.12); color: var(--clinic); }
+  .ts-entry-badge.saturday { background: rgba(71,184,232,0.12); color: var(--saturday); }
+  .ts-entry-badge.half { background: rgba(155,89,182,0.12); color: var(--half); }
+  .ts-entry-badge.special { background: rgba(46,204,113,0.12); color: var(--special); }
+
+  .ts-entry-times {
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  .ts-entry-right {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .ts-entry-hrs {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .ts-entry-net {
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  .ts-entry-del {
+    background: none;
+    border: none;
+    color: var(--muted2);
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 4px;
+    transition: color 0.2s;
+    flex-shrink: 0;
+  }
+
+  .ts-entry-del:hover { color: #e74c3c; }
+
+  /* Week divider */
+  .ts-week-divider {
+    margin: 8px 20px;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ts-week-divider-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .ts-week-divider-total {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  .empty-ts {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    font-style: italic;
+  }
+
+  /* TIMESHEET MODAL */
+  .ts-form-row { margin-bottom: 14px; }
+
+  .ts-lunch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .ts-lunch-label {
+    font-size: 0.72rem;
+    color: var(--text);
+    letter-spacing: 0.04em;
+  }
+
+  .ts-lunch-label span {
+    display: block;
+    font-size: 0.6rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .ts-lunch-toggle {
+    display: flex;
+    gap: 6px;
+  }
+
+  .ts-lunch-opt {
+    padding: 5px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .ts-lunch-opt.selected {
+    background: rgba(232,197,71,0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .ts-preview {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ts-preview-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .ts-preview-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
 
   /* TOAST */
   .toast {
@@ -820,6 +1132,7 @@
     <button class="tab active" onclick="switchTab('week', this)">Week</button>
     <button class="tab" onclick="switchTab('month', this)">Month</button>
     <button class="tab" onclick="switchTab('hours', this)">Hours</button>
+    <button class="tab" onclick="switchTab('timesheet', this)">Timesheet</button>
   </div>
 
   <!-- WEEK TAB -->
@@ -829,11 +1142,8 @@
       <div class="week-label" id="week-range-label"></div>
       <button class="week-nav-btn" onclick="changeWeek(1)">›</button>
     </div>
-
     <div class="week-summary" id="week-summary"></div>
-
     <div id="week-days"></div>
-
     <div class="legend">
       <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Regular</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--clinic)"></div>After-hours</div>
@@ -863,9 +1173,43 @@
     <div class="hours-big" id="hours-big"></div>
     <div class="hours-breakdown" id="hours-breakdown"></div>
   </div>
+
+  <!-- TIMESHEET TAB -->
+  <div id="tab-timesheet" class="section">
+
+    <!-- Week nav -->
+    <div class="ts-nav">
+      <button class="week-nav-btn" onclick="changeTsWeek(-1)">‹</button>
+      <div class="ts-nav-label" id="ts-week-label">
+        <span class="ts-nav-sub">Week</span>
+      </div>
+      <button class="week-nav-btn" onclick="changeTsWeek(1)">›</button>
+    </div>
+
+    <!-- Week / Pay period toggle -->
+    <div class="ts-period-toggle">
+      <button class="ts-toggle-btn active" id="ts-view-week" onclick="setTsView('week', this)">This week</button>
+      <button class="ts-toggle-btn" id="ts-view-period" onclick="setTsView('period', this)">Pay period</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="ts-stats" id="ts-stats"></div>
+
+    <!-- Pay period banner (shown in period view) -->
+    <div class="ts-pay-banner" id="ts-pay-banner" style="display:none"></div>
+
+    <!-- Entries -->
+    <div class="ts-section-hdr">
+      <div class="ts-section-title" id="ts-entries-label">Hours logged</div>
+      <button class="ts-add-btn" onclick="openTsModal()">+ Log hours</button>
+    </div>
+
+    <div id="ts-entries"></div>
+
+  </div>
 </div>
 
-<!-- ADD SHIFT MODAL -->
+<!-- SHIFT MODAL -->
 <div class="modal-backdrop" id="modal" onclick="closeModalOnBackdrop(event)">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -917,16 +1261,102 @@
   </div>
 </div>
 
+<!-- TIMESHEET MODAL -->
+<div class="modal-backdrop" id="ts-modal" onclick="closeTsModalOnBackdrop(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Log Hours</div>
+
+    <!-- Date -->
+    <div class="ts-form-row">
+      <label class="form-label">Date</label>
+      <input type="date" class="form-input" id="ts-date" color-scheme="dark">
+    </div>
+
+    <!-- Shift type -->
+    <div class="ts-form-row">
+      <label class="form-label">Shift type</label>
+      <div class="type-grid" style="margin-bottom:0">
+        <button class="type-btn" data-type="regular" onclick="selectTsType(this)">
+          <span class="type-name">Regular</span>
+          <span class="type-desc">Standard work day</span>
+        </button>
+        <button class="type-btn" data-type="clinic" onclick="selectTsType(this)">
+          <span class="type-name">After-hours</span>
+          <span class="type-desc">Evening clinic</span>
+        </button>
+        <button class="type-btn" data-type="saturday" onclick="selectTsType(this)">
+          <span class="type-name">Saturday</span>
+          <span class="type-desc">Sat morning clinic</span>
+        </button>
+        <button class="type-btn" data-type="half" onclick="selectTsType(this)">
+          <span class="type-name">Half day</span>
+          <span class="type-desc">Early finish</span>
+        </button>
+        <button class="type-btn" data-type="special" onclick="selectTsType(this)" style="grid-column:span 2">
+          <span class="type-name">Special closure</span>
+          <span class="type-desc">Office closed / appreciation day</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Times -->
+    <div class="ts-form-row" style="margin-top:14px">
+      <label class="form-label">Time in / out</label>
+      <div class="time-row">
+        <input type="time" class="form-input" id="ts-start" oninput="updateTsPreview()">
+        <input type="time" class="form-input" id="ts-end" oninput="updateTsPreview()">
+      </div>
+    </div>
+
+    <!-- Lunch deduction -->
+    <div class="ts-form-row">
+      <div class="ts-lunch-row">
+        <div class="ts-lunch-label">
+          Lunch / break
+          <span>Deduct unpaid time</span>
+        </div>
+        <div class="ts-lunch-toggle">
+          <button class="ts-lunch-opt selected" data-mins="0" onclick="selectLunch(this)">None</button>
+          <button class="ts-lunch-opt" data-mins="30" onclick="selectLunch(this)">30m</button>
+          <button class="ts-lunch-opt" data-mins="60" onclick="selectLunch(this)">1h</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="ts-form-row">
+      <div class="ts-preview">
+        <div>
+          <div class="ts-preview-label">Hours to log</div>
+        </div>
+        <div class="ts-preview-val" id="ts-preview-val">—</div>
+      </div>
+    </div>
+
+    <button class="btn-save" onclick="saveTsEntry()">Save Entry</button>
+    <button class="btn-cancel" onclick="closeTsModal()">Cancel</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 // ─── STATE ────────────────────────────────────────────────────────────────────
 let shifts = JSON.parse(localStorage.getItem('shift-data') || '{}');
+let tsEntries = JSON.parse(localStorage.getItem('ts-entries') || '[]');
+// tsEntries: [{ id, date (YYYY-MM-DD), type, start, end, lunchMins }]
+
 let weekOffset = 0;
 let monthOffset = 0;
 let hoursPeriodOffset = 0;
+let tsWeekOffset = 0;
+let tsView = 'week'; // 'week' | 'period'
+
 let modalDate = null;
 let selectedType = null;
+let tsSeltectedType = null;
+let tsLunchMins = 0;
 
 const PRESETS = {
   regular: [
@@ -970,14 +1400,28 @@ const TYPE_LABELS = {
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 function saveData() { localStorage.setItem('shift-data', JSON.stringify(shifts)); }
+function saveTsData() { localStorage.setItem('ts-entries', JSON.stringify(tsEntries)); }
 
 function getWeekStart(offset) {
   const d = new Date();
   d.setHours(0,0,0,0);
-  const day = d.getDay(); // 0=sun
+  const day = d.getDay();
   const monday = new Date(d);
   monday.setDate(d.getDate() - (day === 0 ? 6 : day - 1) + offset * 7);
   return monday;
+}
+
+// Pay period: bi-weekly Monday–Sunday, anchored to Mon Apr 21 2025
+function getPayPeriodStart(offset) {
+  const anchor = new Date('2026-04-20T00:00:00');
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  const daysDiff = Math.floor((d - anchor) / 86400000);
+  const currentPeriod = Math.floor(daysDiff / 14);
+  const targetPeriod = currentPeriod + offset;
+  const result = new Date(anchor);
+  result.setDate(anchor.getDate() + targetPeriod * 14);
+  return result;
 }
 
 function dateKey(d) { return d.toISOString().slice(0,10); }
@@ -997,11 +1441,18 @@ function calcHours(start, end) {
   return Math.max(0, (eh * 60 + em - sh * 60 - sm) / 60);
 }
 
+function calcTsHours(start, end, lunchMins) {
+  const raw = calcHours(start, end);
+  return Math.max(0, raw - (lunchMins || 0) / 60);
+}
+
 function formatHours(h) {
   if (h === 0) return '0h';
-  const whole = Math.floor(h);
-  const mins = Math.round((h - whole) * 60);
-  return mins > 0 ? `${whole}h ${mins}m` : `${whole}h`;
+  // Round to nearest 0.25 (15 min increment)
+  const rounded = Math.round(h * 4) / 4;
+  // Show as decimal — drop trailing .0 but keep .25/.5/.75
+  const str = rounded % 1 === 0 ? `${rounded}h` : `${rounded}h`;
+  return str;
 }
 
 function getShiftsForDay(key) { return shifts[key] || []; }
@@ -1015,6 +1466,8 @@ const MONTHS = ['January','February','March','April','May','June','July','August
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const DAYS_SHORT = ['Su','Mo','Tu','We','Th','Fr','Sa'];
 
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,5); }
+
 // ─── TABS ─────────────────────────────────────────────────────────────────────
 function switchTab(tab, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -1024,6 +1477,7 @@ function switchTab(tab, btn) {
   if (tab === 'week') renderWeek();
   if (tab === 'month') renderMonth();
   if (tab === 'hours') renderHours();
+  if (tab === 'timesheet') renderTimesheet();
 }
 
 // ─── WEEK VIEW ────────────────────────────────────────────────────────────────
@@ -1033,7 +1487,6 @@ function renderWeek() {
   const monday = getWeekStart(weekOffset);
   const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
 
-  // Header
   const fmt = d => `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
   document.getElementById('week-range-label').textContent = `${fmt(monday)} – ${fmt(sunday)}`;
 
@@ -1043,7 +1496,6 @@ function renderWeek() {
     isThisWeek ? `This week<br>${MONTHS[today.getMonth()]} ${today.getFullYear()}` :
     `${MONTHS[monday.getMonth()]} ${monday.getFullYear()}`;
 
-  // Summary
   let regHours = 0, clinicHours = 0;
   const days = [];
   for (let i = 0; i < 7; i++) {
@@ -1073,7 +1525,6 @@ function renderWeek() {
     </div>
   `;
 
-  // Days
   const container = document.getElementById('week-days');
   container.innerHTML = '';
 
@@ -1131,7 +1582,7 @@ function deleteShift(key, index) {
   showToast('Removed');
 }
 
-// ─── MODAL ────────────────────────────────────────────────────────────────────
+// ─── SHIFT MODAL ──────────────────────────────────────────────────────────────
 function openModal(dateKeyStr, e) {
   if (e) e.stopPropagation();
   modalDate = dateKeyStr;
@@ -1141,7 +1592,7 @@ function openModal(dateKeyStr, e) {
   document.getElementById('modal-date-label').textContent =
     `${DAYS[(d.getDay() + 6) % 7]} ${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
 
-  document.querySelectorAll('.type-btn').forEach(b => b.className = 'type-btn');
+  document.querySelectorAll('#modal .type-btn').forEach(b => b.className = 'type-btn');
   document.getElementById('modal-start').value = '';
   document.getElementById('modal-end').value = '';
   document.getElementById('modal-note').value = '';
@@ -1155,15 +1606,13 @@ function closeModalOnBackdrop(e) { if (e.target === document.getElementById('mod
 function selectType(btn) {
   const type = btn.dataset.type;
   selectedType = type;
-  document.querySelectorAll('.type-btn').forEach(b => b.className = 'type-btn');
+  document.querySelectorAll('#modal .type-btn').forEach(b => b.className = 'type-btn');
   btn.className = `type-btn selected-${type}`;
 
-  // Set default times
   const defaults = { regular: ['08:00','16:00'], clinic: ['16:30','19:30'], saturday: ['08:30','15:00'], half: ['08:00','12:00'], special: ['00:00','00:00'] };
   document.getElementById('modal-start').value = defaults[type][0];
   document.getElementById('modal-end').value = defaults[type][1];
 
-  // Presets
   const presets = PRESETS[type] || [];
   document.getElementById('preset-row').innerHTML = presets.map(p =>
     `<button class="preset-btn" onclick="applyPreset('${p.start}','${p.end}')">${p.label}</button>`
@@ -1234,8 +1683,6 @@ function renderMonth() {
 function changeHoursPeriod(dir) { hoursPeriodOffset += dir; renderHours(); }
 
 function renderHours() {
-  const now = new Date();
-  // Bi-weekly periods starting from a Monday
   const currentMonday = getWeekStart(0);
   const periodStart = new Date(currentMonday);
   periodStart.setDate(periodStart.getDate() + hoursPeriodOffset * 14);
@@ -1297,6 +1744,283 @@ function renderHours() {
       <div class="hours-row-val">${formatHours(h)}</div>
     </div>
   `).join('');
+}
+
+// ─── TIMESHEET TAB ────────────────────────────────────────────────────────────
+function changeTsWeek(dir) { tsWeekOffset += dir; renderTimesheet(); }
+function setTsView(v, btn) {
+  tsView = v;
+  document.querySelectorAll('.ts-toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTimesheet();
+}
+
+function renderTimesheet() {
+  const weekStart = getWeekStart(tsWeekOffset); // Monday
+  const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6); // Sunday
+
+  const fmt = d => `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
+  const fmtFull = d => `${DAYS[(d.getDay()+6)%7]} ${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
+
+  // Update week label
+  document.getElementById('ts-week-label').innerHTML =
+    `<span class="ts-nav-sub">Week</span>${fmt(weekStart)} – ${fmt(weekEnd)}`;
+
+  // Gather entries for the week
+  const weekEntries = tsEntries.filter(e => {
+    const ed = new Date(e.date + 'T00:00:00');
+    return ed >= weekStart && ed <= weekEnd;
+  }).sort((a,b) => a.date.localeCompare(b.date));
+
+  // Week totals
+  let weekReg = 0, weekClinic = 0;
+  weekEntries.forEach(e => {
+    const h = calcTsHours(e.start, e.end, e.lunchMins);
+    if (e.type === 'clinic' || e.type === 'saturday') weekClinic += h;
+    else weekReg += h;
+  });
+  const weekTotal = weekReg + weekClinic;
+
+  // Pay period
+  const ppStart = getPayPeriodStart(0); // Most recent Saturday baseline
+  // Find the pay period that contains the viewed week's Monday
+  let ppOffset = 0;
+  // Walk to find which pay period contains weekStart
+  for (let tries = -52; tries <= 52; tries++) {
+    const ps = getPayPeriodStart(tries);
+    const pe = new Date(ps); pe.setDate(ps.getDate() + 13);
+    if (weekStart >= ps && weekStart <= pe) { ppOffset = tries; break; }
+  }
+  const ppS = getPayPeriodStart(ppOffset);
+  const ppE = new Date(ppS); ppE.setDate(ppS.getDate() + 13);
+
+  const ppEntries = tsEntries.filter(e => {
+    const ed = new Date(e.date + 'T00:00:00');
+    return ed >= ppS && ed <= ppE;
+  });
+
+  let ppReg = 0, ppClinic = 0;
+  ppEntries.forEach(e => {
+    const h = calcTsHours(e.start, e.end, e.lunchMins);
+    if (e.type === 'clinic' || e.type === 'saturday') ppClinic += h;
+    else ppReg += h;
+  });
+  const ppTotal = ppReg + ppClinic;
+
+  // Stats strip — always shows current week
+  document.getElementById('ts-stats').innerHTML = `
+    <div class="ts-stat">
+      <div class="ts-stat-val" style="color:var(--accent)">${formatHours(weekReg)}</div>
+      <div class="ts-stat-lbl">Regular</div>
+    </div>
+    <div class="ts-stat">
+      <div class="ts-stat-val" style="color:var(--clinic)">${formatHours(weekClinic)}</div>
+      <div class="ts-stat-lbl">Clinic</div>
+    </div>
+    <div class="ts-stat">
+      <div class="ts-stat-val" style="color:var(--text)">${formatHours(weekTotal)}</div>
+      <div class="ts-stat-lbl">Week total</div>
+    </div>
+  `;
+
+  // Pay period banner
+  const banner = document.getElementById('ts-pay-banner');
+  if (tsView === 'period') {
+    banner.style.display = 'flex';
+    banner.innerHTML = `
+      <div>
+        <div class="ts-pay-banner-label">Pay period</div>
+        <div style="font-size:0.68rem;color:var(--muted);letter-spacing:0.04em">${fmt(ppS)} – ${fmt(ppE)}</div>
+      </div>
+      <div class="ts-pay-banner-right">
+        <div class="ts-pay-banner-label">Total hours</div>
+        <div class="ts-pay-banner-val">${formatHours(ppTotal)}</div>
+      </div>
+    `;
+  } else {
+    banner.style.display = 'none';
+  }
+
+  // Entries to display
+  const displayEntries = tsView === 'week' ? weekEntries : ppEntries.sort((a,b) => a.date.localeCompare(b.date));
+
+  const container = document.getElementById('ts-entries');
+  container.innerHTML = '';
+
+  if (!displayEntries.length) {
+    container.innerHTML = `<div class="empty-ts">No hours logged${tsView === 'week' ? ' this week' : ' this pay period'}.<br>Tap + Log hours to start.</div>`;
+    return;
+  }
+
+  if (tsView === 'week') {
+    // Group by day with daily total
+    const byDay = {};
+    displayEntries.forEach(e => {
+      if (!byDay[e.date]) byDay[e.date] = [];
+      byDay[e.date].push(e);
+    });
+
+    Object.keys(byDay).sort().forEach(dateStr => {
+      const dayEnts = byDay[dateStr];
+      const dayTotal = dayEnts.reduce((sum, e) => sum + calcTsHours(e.start, e.end, e.lunchMins), 0);
+      const d = new Date(dateStr + 'T00:00:00');
+
+      // Day divider
+      const divider = document.createElement('div');
+      divider.className = 'ts-week-divider';
+      divider.innerHTML = `
+        <div class="ts-week-divider-label">${fmtFull(d)}</div>
+        <div class="ts-week-divider-total">${formatHours(dayTotal)}</div>
+      `;
+      container.appendChild(divider);
+
+      dayEnts.forEach(e => {
+        container.appendChild(makeTsEntryEl(e));
+      });
+    });
+
+  } else {
+    // Group by week within the pay period
+    const byWeek = {};
+    displayEntries.forEach(e => {
+      const ed = new Date(e.date + 'T00:00:00');
+      const dow = ed.getDay();
+      const mon = new Date(ed);
+      mon.setDate(ed.getDate() - (dow === 0 ? 6 : dow - 1));
+      const wk = dateKey(mon);
+      if (!byWeek[wk]) byWeek[wk] = [];
+      byWeek[wk].push(e);
+    });
+
+    Object.keys(byWeek).sort().forEach(wkStart => {
+      const wkEnts = byWeek[wkStart];
+      const wkTotal = wkEnts.reduce((sum, e) => sum + calcTsHours(e.start, e.end, e.lunchMins), 0);
+      const ws = new Date(wkStart + 'T00:00:00');
+      const we = new Date(ws); we.setDate(ws.getDate() + 6);
+
+      const divider = document.createElement('div');
+      divider.className = 'ts-week-divider';
+      divider.innerHTML = `
+        <div class="ts-week-divider-label">Week: ${fmt(ws)} – ${fmt(we)}</div>
+        <div class="ts-week-divider-total">${formatHours(wkTotal)}</div>
+      `;
+      container.appendChild(divider);
+
+      wkEnts.sort((a,b) => a.date.localeCompare(b.date)).forEach(e => {
+        container.appendChild(makeTsEntryEl(e));
+      });
+    });
+  }
+}
+
+function makeTsEntryEl(e) {
+  const h = calcTsHours(e.start, e.end, e.lunchMins);
+  const raw = calcHours(e.start, e.end);
+  const hasLunch = e.lunchMins > 0;
+  const d = new Date(e.date + 'T00:00:00');
+
+  const el = document.createElement('div');
+  el.className = 'ts-entry';
+  el.innerHTML = `
+    <div class="ts-entry-dot" style="background:${TYPE_COLORS[e.type]}"></div>
+    <div class="ts-entry-main">
+      <div class="ts-entry-top">
+        <div class="ts-entry-date">${DAYS[(d.getDay()+6)%7]} ${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}</div>
+        <div class="ts-entry-badge ${e.type}">${TYPE_LABELS[e.type]}</div>
+      </div>
+      <div class="ts-entry-times">
+        ${e.start && e.start !== '00:00' ? `${formatTime(e.start)} – ${formatTime(e.end)}` : 'All day'}
+        ${hasLunch ? ` · −${e.lunchMins}m lunch` : ''}
+      </div>
+    </div>
+    <div class="ts-entry-right">
+      <div class="ts-entry-hrs">${formatHours(h)}</div>
+      ${hasLunch ? `<div class="ts-entry-net">of ${formatHours(raw)}</div>` : ''}
+    </div>
+    <button class="ts-entry-del" onclick="deleteTsEntry('${e.id}')">✕</button>
+  `;
+  return el;
+}
+
+function deleteTsEntry(id) {
+  tsEntries = tsEntries.filter(e => e.id !== id);
+  saveTsData();
+  renderTimesheet();
+  showToast('Removed');
+}
+
+// ─── TIMESHEET MODAL ──────────────────────────────────────────────────────────
+function openTsModal() {
+  tsSeltectedType = null;
+  tsLunchMins = 0;
+
+  // Default date: today
+  const today = new Date();
+  document.getElementById('ts-date').value = dateKey(today);
+
+  // Reset type buttons
+  document.querySelectorAll('#ts-modal .type-btn').forEach(b => b.className = 'type-btn');
+
+  // Reset times
+  document.getElementById('ts-start').value = '';
+  document.getElementById('ts-end').value = '';
+
+  // Reset lunch
+  document.querySelectorAll('.ts-lunch-opt').forEach(b => b.classList.remove('selected'));
+  document.querySelector('.ts-lunch-opt[data-mins="0"]').classList.add('selected');
+
+  updateTsPreview();
+  document.getElementById('ts-modal').classList.add('open');
+}
+
+function closeTsModal() { document.getElementById('ts-modal').classList.remove('open'); }
+function closeTsModalOnBackdrop(e) { if (e.target === document.getElementById('ts-modal')) closeTsModal(); }
+
+function selectTsType(btn) {
+  tsSeltectedType = btn.dataset.type;
+  document.querySelectorAll('#ts-modal .type-btn').forEach(b => b.className = 'type-btn');
+  btn.className = `type-btn selected-${tsSeltectedType}`;
+
+  const defaults = { regular: ['08:00','16:00'], clinic: ['16:30','19:30'], saturday: ['08:30','15:00'], half: ['08:00','12:00'], special: ['00:00','00:00'] };
+  document.getElementById('ts-start').value = defaults[tsSeltectedType][0];
+  document.getElementById('ts-end').value = defaults[tsSeltectedType][1];
+  updateTsPreview();
+}
+
+function selectLunch(btn) {
+  tsLunchMins = parseInt(btn.dataset.mins);
+  document.querySelectorAll('.ts-lunch-opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  updateTsPreview();
+}
+
+function updateTsPreview() {
+  const start = document.getElementById('ts-start').value;
+  const end = document.getElementById('ts-end').value;
+  const h = calcTsHours(start, end, tsLunchMins);
+  document.getElementById('ts-preview-val').textContent = (start && end && h > 0) ? formatHours(h) : '—';
+}
+
+function saveTsEntry() {
+  if (!tsSeltectedType) { showToast('Pick a shift type'); return; }
+  const date = document.getElementById('ts-date').value;
+  if (!date) { showToast('Pick a date'); return; }
+  const start = document.getElementById('ts-start').value;
+  const end = document.getElementById('ts-end').value;
+
+  tsEntries.push({
+    id: genId(),
+    date,
+    type: tsSeltectedType,
+    start,
+    end,
+    lunchMins: tsLunchMins
+  });
+
+  saveTsData();
+  closeTsModal();
+  showToast('Logged');
+  renderTimesheet();
 }
 
 // ─── TOAST ────────────────────────────────────────────────────────────────────
